@@ -83,7 +83,7 @@ async function typingEffect(el, text) {
     return;
   }
 
-  await new Promise((r) => setTimeout(r, 450)); // mikir sebentar
+  await new Promise((r) => setTimeout(r, 300 + Math.random() * 400)); // mikir sebentar
 
   let output = "";
   const words = text.split(" ");
