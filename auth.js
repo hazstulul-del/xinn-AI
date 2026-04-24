@@ -5,7 +5,8 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-window.loginGoogle = async function () {
+// LOGIN GOOGLE
+export async function loginGoogle() {
   try {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
@@ -21,15 +22,17 @@ window.loginGoogle = async function () {
   } catch (err) {
     alert("Login gagal: " + err.message);
   }
-};
+}
 
-window.logout = async function () {
+// LOGOUT
+export async function logout() {
   await signOut(auth);
   localStorage.removeItem("xinn_user");
   window.location.href = "login.html";
-};
+}
 
-window.checkLogin = function () {
+// CHECK LOGIN
+export function checkLogin() {
   onAuthStateChanged(auth, (user) => {
     if (!user) {
       localStorage.removeItem("xinn_user");
@@ -43,4 +46,4 @@ window.checkLogin = function () {
       }));
     }
   });
-};
+}
