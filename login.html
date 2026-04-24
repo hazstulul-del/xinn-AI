@@ -94,16 +94,13 @@
   </div>
 
   <script type="module">
-  import { loginGoogle, handleLoginResult } from "./auth.js";
+import { loginGoogle } from "./auth.js";
 
-  // WAJIB: cek hasil login setelah redirect
-  handleLoginResult();
+const btn = document.getElementById("loginBtn");
 
-  const btn = document.getElementById("loginBtn");
-
-  btn.addEventListener("click", async () => {
-    await loginGoogle();
-  });
+btn.addEventListener("click", () => {
+  loginGoogle();
+});
 </script>
 </body>
 </html>
