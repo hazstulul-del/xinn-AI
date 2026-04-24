@@ -74,10 +74,22 @@ function addMessage(role, text, saveIt = true) {
 }
 
 async function typingEffect(el, text) {
-  let output = "";
+  // kalau ada code, tampil agak cepat per blok biar gak nunggu lama
+  if (text.includes("```")) {
+    await new Promise((r) => setTimeout(r, 500));
+    el.innerHTML = renderMarkdown(text);
+    highlightCode();
+    scrollBottom();
+    return;
+  }
 
-  for (let i = 0; i < text.length; i++) {
-    output += text[i];
+  await new Promise((r) => setTimeout(r, 450)); // mikir sebentar
+
+  let output = "";
+  const words = text.split(" ");
+
+  for (let i = 0; i < words.length; i++) {
+    output += (i === 0 ? "" : " ") + words[i];
 
     el.innerHTML =
       renderMarkdown(output) +
@@ -86,17 +98,17 @@ async function typingEffect(el, text) {
     highlightCode();
     scrollBottom();
 
-    let delay = 10 + Math.random() * 14;
+    let delay = 18 + Math.random() * 18;
 
-if (/[.,!?]/.test(text[i])) delay = 70;
-if (text[i] === "\n") delay = 90;
-if (Math.random() > 0.97) delay += 40;
+    if (/[.,!?]$/.test(words[i])) delay = 55;
+    if (i % 12 === 0) delay += 45;
 
     await new Promise((r) => setTimeout(r, delay));
   }
 
   el.innerHTML = renderMarkdown(output);
   highlightCode();
+  scrollBottom();
 }
 
 async function sendMessage() {
