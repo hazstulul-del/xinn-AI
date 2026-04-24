@@ -141,3 +141,15 @@ body.light .send-btn{color:white}
     opacity: 0;
   }
 }
+.typing-cursor {
+  display: inline-block;
+  width: 6px;
+  margin-left: 2px;
+  background: #8ab4ff;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0; }
+}
