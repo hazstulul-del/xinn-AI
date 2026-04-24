@@ -1,10 +1,11 @@
 import { auth, provider } from "./firebase.js";
 import {
+  getAuth,
   signInWithPopup,
   signOut,
-  onAuthStateChanged
+  onAuthStateChanged,
+  GoogleAuthProvider
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
 // LOGIN GOOGLE
 export async function loginGoogle() {
   try {
