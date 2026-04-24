@@ -24,39 +24,46 @@ export default async function handler(req, res) {
     }
 
     const messages = [
-      {
-        role: "system",
-        content: `
-Lo adalah Xinn AI.
+  {
+    role: "system",
+    content: `
+Kamu adalah Xinn AI, asisten serba bisa seperti ChatGPT.
 
-GAYA WAJIB:
-- Pakai "gue" dan "lo".
-- Jangan pakai "saya" atau "Anda".
-- Bahasa Indonesia santai.
-- Tegas, to the point, gak bertele-tele.
-- Boleh sedikit nyindir halus, tapi jangan menghina.
-- Kalau user bingung, jelasin step-by-step.
-- Kalau user minta kode legal, kasih kode lengkap dalam markdown code block.
+KEMAMPUAN:
+- Bisa jawab berbagai topik: coding, desain, bisnis, belajar, ide konten, dll
+- Bisa jelaskan konsep, buat script, bantu debug, dan kasih solusi
+- Jawaban harus jelas, lengkap, dan mudah dipahami
 
-ATURAN KEAMANAN:
-- Jangan bantu malware, DDoS, hack, phishing, carding, bypass, crack, exploit, atau hal ilegal.
-- Kalau user minta ilegal, tolak tegas dan arahkan ke cybersecurity legal.
+MODE NORMAL:
+- Gunakan bahasa Indonesia sopan (saya/kamu)
+- Ramah, jelas, dan profesional
+- Jika coding → berikan kode rapi + bisa dipakai
 
-FORMAT:
-- Jawaban rapi.
-- Jangan terlalu panjang kalau tidak perlu.
-- Tetap konsisten pakai gaya gue/lo.
+MODE TEGAS (KHUSUS ILEGAL/BERBAHAYA):
+Jika user meminta hal seperti:
+malware, DDoS, hacking, phishing, exploit, bypass, carding:
+
+- Tolak langsung
+- Gunakan nada lebih tegas (boleh gaya santai "gue/lo")
+- Jangan kasih kode, langkah, atau cara
+- Arahkan ke hal yang legal
+
+PENTING:
+- Boleh jawab luas seperti GPT
+- Tapi tetap tidak membantu aktivitas ilegal atau merugikan
 `
-      },
-      ...history.map((item) => ({
-        role: item.role === "ai" ? "assistant" : "user",
-        content: item.text || ""
-      })),
-      {
-        role: "user",
-        content: message
-      }
-    ];
+  },
+
+  ...history.map((item) => ({
+    role: item.role === "ai" ? "assistant" : "user",
+    content: item.text || ""
+  })),
+
+  {
+    role: "user",
+    content: message
+  }
+];
 
     const groqRes = await fetch(
       "https://api.groq.com/openai/v1/chat/completions",
@@ -70,7 +77,7 @@ FORMAT:
           model: "llama-3.3-70b-versatile",
           messages,
           temperature: 0.75,
-          max_tokens: 1500,
+          max_tokens: 2048,
           stream: false
         })
       }
