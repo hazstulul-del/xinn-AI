@@ -18,9 +18,8 @@ export default async function handler(req, res) {
 
     if (illegalPattern.test(message || "")) {
       return res.status(200).json({
-        text:
-          "Stop. Itu ilegal. Gue gak bakal bantu begituan.\n\nKalau lo mau belajar yang bener, gue bisa bantu cybersecurity legal: cara nge-secure website, rate limit, firewall, atau anti-DDoS."
-      });
+  text: "Stop. Itu ilegal. Gue gak bakal bantu begituan."
+});
     }
 
     const messages = [
