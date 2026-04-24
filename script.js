@@ -4,6 +4,10 @@ const input = $("messageInput");
 const chat = $("chatArea");
 const welcome = $("welcome");
 const sendBtn = $("sendBtn");
+const sidebar = $("sidebar");
+const overlay = $("overlay");
+const moreMenu = $("moreMenu");
+const plusMenu = $("plusMenu");
 
 let chats = JSON.parse(localStorage.getItem("xinn_chats") || "[]");
 let loading = false;
@@ -13,10 +17,8 @@ function save() {
 }
 
 function scrollBottom() {
-  chat.scrollTo({
-    top: chat.scrollHeight,
-    behavior: "smooth"
-  });
+  if (!chat) return;
+  chat.scrollTo({ top: chat.scrollHeight, behavior: "smooth" });
 }
 
 function renderMarkdown(text) {
@@ -56,6 +58,7 @@ function addMessage(role, text, saveIt = true) {
     const avatar = document.createElement("img");
     avatar.src = "./avatar.gif";
     avatar.className = "chat-avatar";
+    avatar.alt = "Xinn AI";
     row.appendChild(avatar);
   }
 
@@ -77,16 +80,17 @@ function addMessage(role, text, saveIt = true) {
 }
 
 async function typingEffect(el, text) {
-  // kalau ada code, tampil agak cepat per blok biar gak nunggu lama
+  if (!el) return;
+
   if (text.includes("```")) {
-    await new Promise((r) => setTimeout(r, 500));
+    await new Promise((r) => setTimeout(r, 450));
     el.innerHTML = renderMarkdown(text);
     highlightCode();
     scrollBottom();
     return;
   }
 
-  await new Promise((r) => setTimeout(r, 300 + Math.random() * 400)); // mikir sebentar
+  await new Promise((r) => setTimeout(r, 300 + Math.random() * 250));
 
   let output = "";
   const words = text.split(" ");
@@ -101,10 +105,9 @@ async function typingEffect(el, text) {
     highlightCode();
     scrollBottom();
 
-    let delay = 18 + Math.random() * 18;
-
-if (words.length < 10) delay = 12;
-if (/[.,!?]$/.test(words[i])) delay = 55;
+    let delay = 14 + Math.random() * 18;
+    if (/[.,!?]$/.test(words[i])) delay = 55;
+    if (words.length < 10) delay = 10;
 
     await new Promise((r) => setTimeout(r, delay));
   }
@@ -135,13 +138,9 @@ async function sendMessage() {
   );
 
   try {
-    await new Promise((r) => setTimeout(r, 700));
-
     const res = await fetch("/api/chat", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         message: text,
         history: chats.slice(-10)
@@ -170,43 +169,28 @@ async function sendMessage() {
   }
 }
 
-input.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
-});
-
-input.addEventListener("input", () => {
-  input.style.height = "auto";
-  input.style.height = Math.min(input.scrollHeight, 130) + "px";
-});
-
-window.sendMessage = sendMessage;
-function toggleMore(e) {
-  e.stopPropagation();
-  document.getElementById("moreMenu").classList.toggle("active");
-}
-
-function togglePlus(e) {
-  e.stopPropagation();
-  document.getElementById("plusMenu").classList.toggle("active");
-}
-
-window.toggleMore = toggleMore;
-window.togglePlus = togglePlus;
 function openSidebar() {
-  document.getElementById("sidebar").classList.add("active");
-  document.getElementById("overlay").classList.add("active");
+  if (sidebar) sidebar.classList.add("active");
+  if (overlay) overlay.classList.add("active");
 }
 
 function closeSidebar() {
-  document.getElementById("sidebar").classList.remove("active");
-  document.getElementById("overlay").classList.remove("active");
+  if (sidebar) sidebar.classList.remove("active");
+  if (overlay) overlay.classList.remove("active");
 }
 
-window.openSidebar = openSidebar;
-window.closeSidebar = closeSidebar;
+function toggleMore(e) {
+  if (e) e.stopPropagation();
+  if (moreMenu) moreMenu.classList.toggle("active");
+  if (plusMenu) plusMenu.classList.remove("active");
+}
+
+function togglePlus(e) {
+  if (e) e.stopPropagation();
+  if (plusMenu) plusMenu.classList.toggle("active");
+  if (moreMenu) moreMenu.classList.remove("active");
+}
+
 function newChat() {
   chats = [];
   localStorage.removeItem("xinn_chats");
@@ -223,25 +207,85 @@ function newChat() {
 
 function clearChat() {
   newChat();
-
-  const moreMenu = document.getElementById("moreMenu");
   if (moreMenu) moreMenu.classList.remove("active");
+}
+
+function exportChat() {
+  const blob = new Blob([JSON.stringify(chats, null, 2)], {
+    type: "application/json"
+  });
+
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "xinn-ai-chat.json";
+  a.click();
 }
 
 function toggleTheme() {
   document.body.classList.toggle("light");
+  localStorage.setItem(
+    "xinn_theme",
+    document.body.classList.contains("light") ? "light" : "dark"
+  );
 
-  const isLight = document.body.classList.contains("light");
-  localStorage.setItem("xinn_theme", isLight ? "light" : "dark");
-
-  const moreMenu = document.getElementById("moreMenu");
   if (moreMenu) moreMenu.classList.remove("active");
+}
+
+function quickAsk(text) {
+  input.value = text;
+  sendMessage();
+}
+
+function handleFile(file) {
+  if (!file) return;
+  addMessage("user", `File dipilih: **${file.name}**`);
+  if (plusMenu) plusMenu.classList.remove("active");
 }
 
 if (localStorage.getItem("xinn_theme") === "light") {
   document.body.classList.add("light");
 }
 
+if (input) {
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  input.addEventListener("input", () => {
+    input.style.height = "auto";
+    input.style.height = Math.min(input.scrollHeight, 130) + "px";
+  });
+}
+
+document.addEventListener("click", (e) => {
+  if (
+    moreMenu &&
+    !e.target.closest("#moreMenu") &&
+    !e.target.closest(".top-btn")
+  ) {
+    moreMenu.classList.remove("active");
+  }
+
+  if (
+    plusMenu &&
+    !e.target.closest("#plusMenu") &&
+    !e.target.closest(".plus-btn")
+  ) {
+    plusMenu.classList.remove("active");
+  }
+});
+
+window.sendMessage = sendMessage;
+window.openSidebar = openSidebar;
+window.closeSidebar = closeSidebar;
+window.toggleMore = toggleMore;
+window.togglePlus = togglePlus;
 window.newChat = newChat;
 window.clearChat = clearChat;
+window.exportChat = exportChat;
 window.toggleTheme = toggleTheme;
+window.quickAsk = quickAsk;
+window.handleFile = handleFile;
