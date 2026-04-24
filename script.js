@@ -207,3 +207,41 @@ function closeSidebar() {
 
 window.openSidebar = openSidebar;
 window.closeSidebar = closeSidebar;
+function newChat() {
+  chats = [];
+  localStorage.removeItem("xinn_chats");
+
+  chat.innerHTML = "";
+
+  if (welcome) {
+    chat.appendChild(welcome);
+    welcome.style.display = "flex";
+  }
+
+  closeSidebar();
+}
+
+function clearChat() {
+  newChat();
+
+  const moreMenu = document.getElementById("moreMenu");
+  if (moreMenu) moreMenu.classList.remove("active");
+}
+
+function toggleTheme() {
+  document.body.classList.toggle("light");
+
+  const isLight = document.body.classList.contains("light");
+  localStorage.setItem("xinn_theme", isLight ? "light" : "dark");
+
+  const moreMenu = document.getElementById("moreMenu");
+  if (moreMenu) moreMenu.classList.remove("active");
+}
+
+if (localStorage.getItem("xinn_theme") === "light") {
+  document.body.classList.add("light");
+}
+
+window.newChat = newChat;
+window.clearChat = clearChat;
+window.toggleTheme = toggleTheme;
