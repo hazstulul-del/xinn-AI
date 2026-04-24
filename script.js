@@ -13,7 +13,10 @@ function save() {
 }
 
 function scrollBottom() {
-  chat.scrollTo({ top: chat.scrollHeight, behavior: "smooth" });
+  chat.scrollTo({
+    top: chat.scrollHeight,
+    behavior: "smooth"
+  });
 }
 
 function renderMarkdown(text) {
