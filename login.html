@@ -96,10 +96,13 @@
   <script type="module">
   import { loginGoogle, handleLoginResult } from "./auth.js";
 
+  // WAJIB: cek hasil login setelah redirect
   handleLoginResult();
 
-  document.getElementById("loginBtn").addEventListener("click", () => {
-    loginGoogle();
+  const btn = document.getElementById("loginBtn");
+
+  btn.addEventListener("click", async () => {
+    await loginGoogle();
   });
 </script>
 </body>
