@@ -14,24 +14,21 @@ export async function loginGoogle() {
   }
 }
 
-export async function handleLoginResult() {
+export async function loginGoogle() {
   try {
-    const result = await getRedirectResult(auth);
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
 
-    if (result && result.user) {
-      const user = result.user;
+    localStorage.setItem("xinn_user", JSON.stringify({
+      uid: user.uid,
+      name: user.displayName,
+      email: user.email,
+      photo: user.photoURL
+    }));
 
-      localStorage.setItem("xinn_user", JSON.stringify({
-        uid: user.uid,
-        name: user.displayName,
-        email: user.email,
-        photo: user.photoURL
-      }));
-
-      window.location.href = "index.html";
-    }
+    location.replace("./index.html");
   } catch (err) {
-    alert("Login redirect gagal: " + err.message);
+    alert("Login gagal: " + err.message);
   }
 }
 
