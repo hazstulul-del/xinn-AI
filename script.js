@@ -103,8 +103,8 @@ async function typingEffect(el, text) {
 
     let delay = 18 + Math.random() * 18;
 
-    if (/[.,!?]$/.test(words[i])) delay = 55;
-    if (i % 12 === 0) delay += 45;
+if (words.length < 10) delay = 12;
+if (/[.,!?]$/.test(words[i])) delay = 55;
 
     await new Promise((r) => setTimeout(r, delay));
   }
