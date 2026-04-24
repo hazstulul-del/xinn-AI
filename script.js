@@ -183,3 +183,15 @@ input.addEventListener("input", () => {
 });
 
 window.sendMessage = sendMessage;
+function toggleMore(e) {
+  e.stopPropagation();
+  document.getElementById("moreMenu").classList.toggle("active");
+}
+
+function togglePlus(e) {
+  e.stopPropagation();
+  document.getElementById("plusMenu").classList.toggle("active");
+}
+
+window.toggleMore = toggleMore;
+window.togglePlus = togglePlus;
