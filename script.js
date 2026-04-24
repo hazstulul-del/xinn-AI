@@ -86,11 +86,11 @@ async function typingEffect(el, text) {
     highlightCode();
     scrollBottom();
 
-    let delay = 35 + Math.random() * 60;
+    let delay = 10 + Math.random() * 14;
 
-    if (/[.,!?]/.test(text[i])) delay = 220;
-    if (text[i] === "\n") delay = 300;
-    if (Math.random() > 0.85) delay += 150;
+if (/[.,!?]/.test(text[i])) delay = 70;
+if (text[i] === "\n") delay = 90;
+if (Math.random() > 0.97) delay += 40;
 
     await new Promise((r) => setTimeout(r, delay));
   }
