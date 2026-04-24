@@ -94,11 +94,13 @@
   </div>
 
   <script type="module">
-    import { loginGoogle } from "./auth.js";
+  import { loginGoogle, handleLoginResult } from "./auth.js";
 
-    document.getElementById("loginBtn").addEventListener("click", () => {
-      loginGoogle();
-    });
-  </script>
+  handleLoginResult();
+
+  document.getElementById("loginBtn").addEventListener("click", () => {
+    loginGoogle();
+  });
+</script>
 </body>
 </html>
