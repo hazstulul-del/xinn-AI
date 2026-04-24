@@ -1,41 +1,46 @@
-// LOGIN GOOGLE
-function loginGoogle() {
-  const provider = new firebase.auth.GoogleAuthProvider();
+import { auth, provider } from "./firebase.js";
+import {
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-  auth.signInWithPopup(provider)
-    .then((result) => {
-      const user = result.user;
+window.loginGoogle = async function () {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
 
-      // simpan user
-      localStorage.setItem("user", JSON.stringify({
+    localStorage.setItem("xinn_user", JSON.stringify({
+      uid: user.uid,
+      name: user.displayName,
+      email: user.email,
+      photo: user.photoURL
+    }));
+
+    window.location.href = "index.html";
+  } catch (err) {
+    alert("Login gagal: " + err.message);
+  }
+};
+
+window.logout = async function () {
+  await signOut(auth);
+  localStorage.removeItem("xinn_user");
+  window.location.href = "login.html";
+};
+
+window.checkLogin = function () {
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      localStorage.removeItem("xinn_user");
+      window.location.href = "login.html";
+    } else {
+      localStorage.setItem("xinn_user", JSON.stringify({
+        uid: user.uid,
         name: user.displayName,
         email: user.email,
         photo: user.photoURL
       }));
-
-      // redirect ke chat
-      window.location.href = "index.html";
-    })
-    .catch((error) => {
-      alert("Login gagal: " + error.message);
-    });
-}
-
-
-// CEK LOGIN (dipakai di index.html)
-function checkLogin() {
-  const user = localStorage.getItem("user");
-
-  if (!user) {
-    window.location.href = "login.html";
-  }
-}
-
-
-// LOGOUT
-function logout() {
-  auth.signOut().then(() => {
-    localStorage.removeItem("user");
-    window.location.href = "login.html";
+    }
   });
-        }
+};
