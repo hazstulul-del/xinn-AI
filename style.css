@@ -276,3 +276,63 @@ body.logout-anim {
   border: 1px solid rgba(120, 140, 255, 0.18);
   border-top-left-radius: 8px;
 }
+.chat-area {
+  padding-top: 80px;
+  padding-bottom: 120px;
+}
+
+.message {
+  display: flex;
+  width: 100%;
+  margin: 12px 0;
+  padding: 0 14px;
+}
+
+.message.user {
+  justify-content: flex-end;
+}
+
+.message.ai {
+  justify-content: flex-start;
+}
+
+.message .bubble {
+  max-width: 78%;
+  padding: 14px 18px;
+  border-radius: 18px;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* USER */
+.message.user .bubble {
+  background: linear-gradient(135deg, #5b6cff, #7c3aed);
+  color: white;
+  border-top-right-radius: 6px;
+}
+
+/* AI */
+.message.ai .bubble {
+  background: rgba(30, 35, 60, 0.85);
+  color: #e5e7eb;
+  border: 1px solid rgba(120, 140, 255, 0.15);
+  border-top-left-radius: 6px;
+}
+
+/* BIAR ADA JARAK ANTAR CHAT */
+.message + .message {
+  margin-top: 18px;
+}.message {
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
