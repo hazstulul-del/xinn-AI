@@ -305,10 +305,21 @@ window.addEventListener("DOMContentLoaded", () => {
     openSidebar();
   });
 
-  document.getElementById("sendBtn")?.addEventListener("click", (e) => {
-    e.preventDefault();
-    sendMessage();
-  });
+  // FIX FINAL TOMBOL KIRIM (VERSI STABIL)
+window.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("sendBtn");
+
+  if (btn) {
+    btn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      console.log("KIRIM DIKLIK");
+
+      sendMessage();
+    };
+  }
+});
 
   document.getElementById("loginBtn")?.addEventListener("click", () => {
     window.location.href = "./login.html";
