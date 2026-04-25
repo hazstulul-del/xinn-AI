@@ -91,7 +91,25 @@
   <script type="module" src="firebase.js"></script>
   <script type="module" src="auth.js"></script>
   <script type="module">
-  import { checkLogin } from "./auth.js";
-  checkLogin();
-  </script>
+import { loginGoogle, logout } from "./auth.js";
+
+const user = JSON.parse(localStorage.getItem("xinn_user"));
+
+const loginBtn = document.getElementById("loginBtn");
+const userPhoto = document.getElementById("userPhoto");
+
+if (user) {
+  loginBtn.style.display = "none";
+  userPhoto.style.display = "block";
+  userPhoto.src = user.photo;
+
+  userPhoto.onclick = () => logout();
+
+} else {
+  loginBtn.style.display = "block";
+  userPhoto.style.display = "none";
+
+  loginBtn.onclick = () => loginGoogle();
+}
+</script>
     </html>
