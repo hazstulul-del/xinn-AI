@@ -336,3 +336,59 @@ body.logout-anim {
     transform: translateY(0);
   }
 }
+/* GPT STYLE CHAT ONLY */
+.message {
+  display: flex;
+  width: 100%;
+  padding: 0 18px;
+  margin: 22px 0;
+  gap: 12px;
+}
+
+.message.user {
+  justify-content: flex-end;
+}
+
+.message.ai {
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.message.ai::before {
+  content: "";
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  border-radius: 50%;
+  background: url("./avatar.gif") center/cover no-repeat;
+  border: 1px solid rgba(255,255,255,.18);
+}
+
+.message .bubble {
+  max-width: 74%;
+  padding: 14px 18px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #f4f4f5;
+  box-shadow: none;
+}
+
+.message.user .bubble {
+  background: #2f2f2f;
+  border-radius: 22px;
+}
+
+.message.ai .bubble {
+  background: transparent;
+  border: none;
+  padding-top: 4px;
+}
+
+.message.ai .bubble::after {
+  content: "  ⧉   👍   👎   ↻";
+  display: block;
+  margin-top: 14px;
+  color: #a1a1aa;
+  font-size: 20px;
+  letter-spacing: 12px;
+}
