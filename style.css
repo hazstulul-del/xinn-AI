@@ -241,3 +241,38 @@ body.logout-anim {
 @keyframes logoutFade {
   to { opacity: 0; transform: scale(.98); }
 }
+.message {
+  width: 100%;
+  display: flex;
+  margin: 14px 0;
+  padding: 0 18px;
+}
+
+.message.user {
+  justify-content: flex-end;
+}
+
+.message.ai {
+  justify-content: flex-start;
+}
+
+.message .bubble {
+  max-width: 82%;
+  padding: 14px 18px;
+  border-radius: 20px;
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+.message.user .bubble {
+  background: rgba(80, 90, 130, 0.55);
+  color: white;
+  border-top-right-radius: 8px;
+}
+
+.message.ai .bubble {
+  background: rgba(22, 28, 50, 0.88);
+  color: #f8fafc;
+  border: 1px solid rgba(120, 140, 255, 0.18);
+  border-top-left-radius: 8px;
+}
