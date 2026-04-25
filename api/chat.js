@@ -76,7 +76,7 @@ PENTING:
           model: "llama-3.1-8b-instant",
           messages,
           temperature: 0.7,
-          max_tokens: 2048,
+          max_tokens: 500,
           stream: false
         })
       }
