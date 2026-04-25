@@ -1,4 +1,5 @@
-const $ = (id) => document.getElementById(id);
+import { checkLimit, addUsage } from "./limit.js";
+constt $ = (id) => document.getElementById(id);
 
 const input = $("messageInput");
 const chat = $("chatArea");
@@ -120,6 +121,12 @@ async function typingEffect(el, text) {
 async function sendMessage() {
   if (loading) return;
 
+  const limit = await checkLimit();
+  if (!limit.ok) {
+    addMessage("ai", limit.msg);
+    return;
+  }
+
   const text = input.value.trim();
   if (!text) return;
 
@@ -158,8 +165,10 @@ async function sendMessage() {
     aiBubble.innerHTML = "";
     await typingEffect(aiBubble, answer);
 
-    chats.push({ role: "ai", text: answer });
-    save();
+chats.push({ role: "ai", text: answer });
+save();
+
+await addUsage();
   } catch (err) {
     aiBubble.innerHTML = "⚠️ Error: API gagal atau koneksi bermasalah.";
   } finally {
