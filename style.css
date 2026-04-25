@@ -562,3 +562,30 @@ textarea,
 .overlay {
   z-index: 1000 !important;
 }
+/* FIX CLICK TOTAL */
+* {
+  pointer-events: auto !important;
+}
+
+.chat-area {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.topbar {
+  position: fixed !important;
+  z-index: 9999 !important;
+}
+
+.input-wrap {
+  position: fixed !important;
+  z-index: 9999 !important;
+}
+
+.sidebar {
+  z-index: 10000 !important;
+}
+
+.overlay {
+  display: none !important;
+}
