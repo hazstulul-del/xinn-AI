@@ -287,6 +287,7 @@ document.addEventListener("click", (e) => {
   }
 });
 
+// FIX BUTTON ANTI MATI
 window.sendMessage = sendMessage;
 window.openSidebar = openSidebar;
 window.closeSidebar = closeSidebar;
@@ -298,3 +299,13 @@ window.exportChat = exportChat;
 window.toggleTheme = toggleTheme;
 window.quickAsk = quickAsk;
 window.handleFile = handleFile;
+
+document.getElementById("sendBtn")?.addEventListener("click", sendMessage);
+
+document.querySelector(".plus-btn")?.addEventListener("click", (e) => {
+  togglePlus(e);
+});
+
+document.querySelector(".top-btn")?.addEventListener("click", () => {
+  openSidebar();
+});
