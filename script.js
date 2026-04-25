@@ -7,36 +7,96 @@ const sidebar = $("sidebar");
 const overlay = $("overlay");
 const moreMenu = $("moreMenu");
 const plusMenu = $("plusMenu");
-const loginBtn = $("loginBtn");
-const userPhoto = $("userPhoto");
-const profileMenu = $("profileMenu");
-const profilePhoto = $("profilePhoto");
-const profileName = $("profileName");
-const profileEmail = $("profileEmail");
-const logoutBtn = $("logoutBtn");
 
 let chats = JSON.parse(localStorage.getItem("xinn_chats") || "[]");
 let loading = false;
 
+/* ================= SAVE ================= */
 function save() {
   localStorage.setItem("xinn_chats", JSON.stringify(chats));
 }
 
+/* ================= SCROLL ================= */
+function smoothScroll() {
+  chat.scrollTo({
+    top: chat.scrollHeight,
+    behavior: "smooth"
+  });
+}
+
+/* ================= MARKDOWN RENDER ================= */
+function renderMarkdown(text) {
+  if (window.marked) return marked.parse(text);
+  return text.replace(/\n/g, "<br>");
+}
+
+/* ================= CODE COPY ================= */
+function addCopyButtons() {
+  document.querySelectorAll("pre").forEach((pre) => {
+    if (pre.querySelector(".copy-btn")) return;
+
+    const btn = document.createElement("button");
+    btn.className = "copy-btn";
+    btn.innerText = "Copy";
+
+    btn.onclick = async () => {
+      const code = pre.innerText;
+      await navigator.clipboard.writeText(code);
+      btn.innerText = "Copied!";
+      setTimeout(() => (btn.innerText = "Copy"), 1200);
+    };
+
+    pre.appendChild(btn);
+  });
+}
+
+/* ================= ADD MESSAGE ================= */
 function addMessage(role, text) {
   if (welcome) welcome.style.display = "none";
 
-  const div = document.createElement("div");
-  div.className = `message ${role}`;
+  const wrap = document.createElement("div");
+  wrap.className = `msg ${role}`;
 
-  div.innerHTML = `
-    <div class="bubble">${text}</div>
-  `;
+  if (role === "ai") {
+    wrap.innerHTML = `
+      <div class="avatar">
+        <img src="./avatar.gif">
+      </div>
+      <div class="bubble"></div>
+    `;
+  } else {
+    wrap.innerHTML = `
+      <div class="bubble"></div>
+    `;
+  }
 
-  chat.appendChild(div);
-  chat.scrollTop = chat.scrollHeight;
-  return div.querySelector(".bubble");
+  chat.appendChild(wrap);
+  smoothScroll();
+
+  return wrap.querySelector(".bubble");
 }
 
+/* ================= TYPING EFFECT ================= */
+function typeText(el, text) {
+  el.innerHTML = "";
+  let i = 0;
+
+  function typing() {
+    if (i < text.length) {
+      el.innerHTML += text.charAt(i);
+      i++;
+      smoothScroll();
+      setTimeout(typing, 12); // kecepatan GPT feel
+    } else {
+      el.innerHTML = renderMarkdown(text);
+      addCopyButtons();
+    }
+  }
+
+  typing();
+}
+
+/* ================= SEND MESSAGE ================= */
 async function sendMessage() {
   if (loading) return;
 
@@ -47,7 +107,7 @@ async function sendMessage() {
   input.value = "";
 
   addMessage("user", text);
-  const aiBubble = addMessage("ai", "Xinn AI sedang mengetik...");
+  const aiBubble = addMessage("ai", "•••");
 
   try {
     const res = await fetch("/api/chat", {
@@ -62,20 +122,25 @@ async function sendMessage() {
     });
 
     const data = await res.json();
-    const answer = data.text || data.reply || data.answer || "AI tidak memberi jawaban.";
+    const answer =
+      data.text ||
+      data.reply ||
+      data.answer ||
+      "Maaf, terjadi kesalahan.";
 
-    aiBubble.textContent = answer;
+    typeText(aiBubble, answer);
 
     chats.push({ role: "user", text });
     chats.push({ role: "ai", text: answer });
     save();
   } catch (err) {
-    aiBubble.textContent = "⚠️ Error: API gagal atau koneksi bermasalah.";
+    aiBubble.innerHTML = "⚠️ Error koneksi API.";
   }
 
   loading = false;
 }
 
+/* ================= UI ================= */
 function openSidebar() {
   sidebar?.classList.add("active");
   overlay?.classList.add("active");
@@ -98,73 +163,7 @@ function togglePlus(e) {
   moreMenu?.classList.remove("active");
 }
 
-function quickAsk(text) {
-  input.value = text;
-  input.focus();
-}
-
-function newChat() {
-  chats = [];
-  save();
-  location.reload();
-}
-
-function clearChat() {
-  chats = [];
-  save();
-  location.reload();
-}
-
-function exportChat() {
-  const blob = new Blob([JSON.stringify(chats, null, 2)], { type: "application/json" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "xinn-ai-chat.json";
-  a.click();
-}
-
-function toggleTheme() {
-  document.body.classList.toggle("light");
-}
-
-function handleFile(file) {
-  if (!file) return;
-  addMessage("user", `📎 File dipilih: ${file.name}`);
-}
-
-function setupUser() {
-  const user = JSON.parse(localStorage.getItem("xinn_user") || "null");
-
-  if (user) {
-    if (loginBtn) loginBtn.style.display = "none";
-    if (userPhoto) {
-      userPhoto.style.display = "block";
-      userPhoto.src = user.photo || "./avatar.gif";
-      userPhoto.onclick = (e) => {
-        e.stopPropagation();
-        profileMenu?.classList.toggle("active");
-      };
-    }
-
-    if (profilePhoto) profilePhoto.src = user.photo || "./avatar.gif";
-    if (profileName) profileName.textContent = user.name || "User";
-    if (profileEmail) profileEmail.textContent = user.email || "";
-  } else {
-    if (loginBtn) {
-      loginBtn.style.display = "block";
-      loginBtn.onclick = () => location.href = "./login.html";
-    }
-    if (userPhoto) userPhoto.style.display = "none";
-  }
-
-  if (logoutBtn) {
-    logoutBtn.onclick = () => {
-      localStorage.removeItem("xinn_user");
-      location.href = "./login.html";
-    };
-  }
-}
-
+/* ================= CLICK CLOSE ================= */
 document.addEventListener("click", (e) => {
   if (!e.target.closest("#moreMenu") && !e.target.closest("#moreBtn")) {
     moreMenu?.classList.remove("active");
@@ -173,12 +172,9 @@ document.addEventListener("click", (e) => {
   if (!e.target.closest("#plusMenu") && !e.target.closest(".plus-btn")) {
     plusMenu?.classList.remove("active");
   }
-
-  if (!e.target.closest("#userArea")) {
-    profileMenu?.classList.remove("active");
-  }
 });
 
+/* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded", () => {
   $("menuBtn")?.addEventListener("click", openSidebar);
   $("moreBtn")?.addEventListener("click", toggleMore);
@@ -191,18 +187,11 @@ document.addEventListener("DOMContentLoaded", () => {
       sendMessage();
     }
   });
-
-  setupUser();
 });
 
+/* ================= GLOBAL ================= */
 window.sendMessage = sendMessage;
 window.openSidebar = openSidebar;
 window.closeSidebar = closeSidebar;
 window.toggleMore = toggleMore;
 window.togglePlus = togglePlus;
-window.newChat = newChat;
-window.clearChat = clearChat;
-window.exportChat = exportChat;
-window.toggleTheme = toggleTheme;
-window.quickAsk = quickAsk;
-window.handleFile = handleFile;
