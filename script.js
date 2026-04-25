@@ -3,11 +3,17 @@ const $ = (id) => document.getElementById(id);
 const input = $("messageInput");
 const chat = $("chatArea");
 const welcome = $("welcome");
-const sendBtn = $("sendBtn");
 const sidebar = $("sidebar");
 const overlay = $("overlay");
 const moreMenu = $("moreMenu");
 const plusMenu = $("plusMenu");
+const loginBtn = $("loginBtn");
+const userPhoto = $("userPhoto");
+const profileMenu = $("profileMenu");
+const profilePhoto = $("profilePhoto");
+const profileName = $("profileName");
+const profileEmail = $("profileEmail");
+const logoutBtn = $("logoutBtn");
 
 let chats = JSON.parse(localStorage.getItem("xinn_chats") || "[]");
 let loading = false;
@@ -16,213 +22,101 @@ function save() {
   localStorage.setItem("xinn_chats", JSON.stringify(chats));
 }
 
-function scrollBottom() {
-  if (!chat) return;
-  chat.scrollTo({ top: chat.scrollHeight, behavior: "smooth" });
-}
-
-function renderMarkdown(text) {
-  if (!window.marked) return (text || "").replace(/\n/g, "<br>");
-  return marked.parse(text || "");
-}
-
-function highlightCode() {
-  if (window.Prism) Prism.highlightAll();
-
-  document.querySelectorAll("pre").forEach((pre) => {
-    if (pre.querySelector(".copy-code-btn")) return;
-
-    const btn = document.createElement("button");
-    btn.className = "copy-code-btn";
-    btn.textContent = "Copy";
-
-    btn.onclick = async (e) => {
-      e.stopPropagation();
-      const code = pre.querySelector("code")?.innerText || pre.innerText;
-      await navigator.clipboard.writeText(code);
-      btn.textContent = "Copied!";
-      setTimeout(() => (btn.textContent = "Copy"), 1200);
-    };
-
-    pre.appendChild(btn);
-  });
-}
-
-function addMessage(role, text, saveIt = true) {
+function addMessage(role, text) {
   if (welcome) welcome.style.display = "none";
 
-  const row = document.createElement("div");
-  row.className = `msg ${role}`;
+  const div = document.createElement("div");
+  div.className = `message ${role}`;
 
-  if (role === "ai") {
-    const avatar = document.createElement("img");
-    avatar.src = "./avatar.gif";
-    avatar.className = "chat-avatar";
-    avatar.alt = "Xinn AI";
-    row.appendChild(avatar);
-  }
+  div.innerHTML = `
+    <div class="bubble">${text}</div>
+  `;
 
-  const bubble = document.createElement("div");
-  bubble.className = "bubble";
-  bubble.innerHTML = renderMarkdown(text);
-
-  row.appendChild(bubble);
-  chat.appendChild(row);
-
-  if (saveIt) {
-    chats.push({ role, text });
-    save();
-  }
-
-  highlightCode();
-  scrollBottom();
-  return bubble;
-}
-
-async function typingEffect(el, text) {
-  if (!el) return;
-
-  if (text.includes("```")) {
-    await new Promise((r) => setTimeout(r, 450));
-    el.innerHTML = renderMarkdown(text);
-    highlightCode();
-    scrollBottom();
-    return;
-  }
-
-  await new Promise((r) => setTimeout(r, 300 + Math.random() * 250));
-
-  let output = "";
-  const words = text.split(" ");
-
-  for (let i = 0; i < words.length; i++) {
-    output += (i === 0 ? "" : " ") + words[i];
-
-    el.innerHTML =
-      renderMarkdown(output) +
-      `<span class="typing-cursor"></span>`;
-
-    highlightCode();
-    scrollBottom();
-
-    let delay = 14 + Math.random() * 18;
-    if (/[.,!?]$/.test(words[i])) delay = 55;
-    if (words.length < 10) delay = 10;
-
-    await new Promise((r) => setTimeout(r, delay));
-  }
-
-  el.innerHTML = renderMarkdown(output);
-  highlightCode();
-  scrollBottom();
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  return div.querySelector(".bubble");
 }
 
 async function sendMessage() {
   if (loading) return;
 
-  const limit = await checkLimit();
-  if (!limit.ok) {
-    addMessage("ai", limit.msg);
-    return;
-  }
-
   const text = input.value.trim();
   if (!text) return;
 
   loading = true;
-  sendBtn.disabled = true;
-
   input.value = "";
-  input.style.height = "auto";
 
   addMessage("user", text);
-
-  const aiBubble = addMessage(
-    "ai",
-    `<span class="typing-dots"><span></span><span></span><span></span></span>`,
-    false
-  );
+  const aiBubble = addMessage("ai", "Xinn AI sedang mengetik...");
 
   try {
     const res = await fetch("/api/chat", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({
         message: text,
-        history: chats.slice(-10)
+        history: chats.slice(-4)
       })
     });
 
     const data = await res.json();
+    const answer = data.text || data.reply || data.answer || "AI tidak memberi jawaban.";
 
-    const answer =
-      data.text ||
-      data.reply ||
-      data.answer ||
-      "⚠️ AI tidak memberi jawaban.";
+    aiBubble.textContent = answer;
 
-    aiBubble.innerHTML = "";
-    await typingEffect(aiBubble, answer);
-
-chats.push({ role: "ai", text: answer });
-save();
-
-await addUsage();
+    chats.push({ role: "user", text });
+    chats.push({ role: "ai", text: answer });
+    save();
   } catch (err) {
-    aiBubble.innerHTML = "⚠️ Error: API gagal atau koneksi bermasalah.";
-  } finally {
-    loading = false;
-    sendBtn.disabled = false;
-    scrollBottom();
+    aiBubble.textContent = "⚠️ Error: API gagal atau koneksi bermasalah.";
   }
+
+  loading = false;
 }
 
 function openSidebar() {
-  if (sidebar) sidebar.classList.add("active");
-  if (overlay) overlay.classList.add("active");
+  sidebar?.classList.add("active");
+  overlay?.classList.add("active");
 }
 
 function closeSidebar() {
-  if (sidebar) sidebar.classList.remove("active");
-  if (overlay) overlay.classList.remove("active");
+  sidebar?.classList.remove("active");
+  overlay?.classList.remove("active");
 }
 
 function toggleMore(e) {
-  if (e) e.stopPropagation();
-  if (moreMenu) moreMenu.classList.toggle("active");
-  if (plusMenu) plusMenu.classList.remove("active");
+  e?.stopPropagation();
+  moreMenu?.classList.toggle("active");
+  plusMenu?.classList.remove("active");
 }
 
 function togglePlus(e) {
-  if (e) e.stopPropagation();
-  if (plusMenu) plusMenu.classList.toggle("active");
-  if (moreMenu) moreMenu.classList.remove("active");
+  e?.stopPropagation();
+  plusMenu?.classList.toggle("active");
+  moreMenu?.classList.remove("active");
+}
+
+function quickAsk(text) {
+  input.value = text;
+  input.focus();
 }
 
 function newChat() {
   chats = [];
-  localStorage.removeItem("xinn_chats");
-
-  chat.innerHTML = "";
-
-  if (welcome) {
-    chat.appendChild(welcome);
-    welcome.style.display = "flex";
-  }
-
-  closeSidebar();
+  save();
+  location.reload();
 }
 
 function clearChat() {
-  newChat();
-  if (moreMenu) moreMenu.classList.remove("active");
+  chats = [];
+  save();
+  location.reload();
 }
 
 function exportChat() {
-  const blob = new Blob([JSON.stringify(chats, null, 2)], {
-    type: "application/json"
-  });
-
+  const blob = new Blob([JSON.stringify(chats, null, 2)], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = "xinn-ai-chat.json";
@@ -231,62 +125,76 @@ function exportChat() {
 
 function toggleTheme() {
   document.body.classList.toggle("light");
-  localStorage.setItem(
-    "xinn_theme",
-    document.body.classList.contains("light") ? "light" : "dark"
-  );
-
-  if (moreMenu) moreMenu.classList.remove("active");
-}
-
-function quickAsk(text) {
-  input.value = text;
-  sendMessage();
 }
 
 function handleFile(file) {
   if (!file) return;
-  addMessage("user", `File dipilih: **${file.name}**`);
-  if (plusMenu) plusMenu.classList.remove("active");
+  addMessage("user", `📎 File dipilih: ${file.name}`);
 }
 
-if (localStorage.getItem("xinn_theme") === "light") {
-  document.body.classList.add("light");
+function setupUser() {
+  const user = JSON.parse(localStorage.getItem("xinn_user") || "null");
+
+  if (user) {
+    if (loginBtn) loginBtn.style.display = "none";
+    if (userPhoto) {
+      userPhoto.style.display = "block";
+      userPhoto.src = user.photo || "./avatar.gif";
+      userPhoto.onclick = (e) => {
+        e.stopPropagation();
+        profileMenu?.classList.toggle("active");
+      };
+    }
+
+    if (profilePhoto) profilePhoto.src = user.photo || "./avatar.gif";
+    if (profileName) profileName.textContent = user.name || "User";
+    if (profileEmail) profileEmail.textContent = user.email || "";
+  } else {
+    if (loginBtn) {
+      loginBtn.style.display = "block";
+      loginBtn.onclick = () => location.href = "./login.html";
+    }
+    if (userPhoto) userPhoto.style.display = "none";
+  }
+
+  if (logoutBtn) {
+    logoutBtn.onclick = () => {
+      localStorage.removeItem("xinn_user");
+      location.href = "./login.html";
+    };
+  }
 }
 
-if (input) {
-  input.addEventListener("keydown", (e) => {
+document.addEventListener("click", (e) => {
+  if (!e.target.closest("#moreMenu") && !e.target.closest("#moreBtn")) {
+    moreMenu?.classList.remove("active");
+  }
+
+  if (!e.target.closest("#plusMenu") && !e.target.closest(".plus-btn")) {
+    plusMenu?.classList.remove("active");
+  }
+
+  if (!e.target.closest("#userArea")) {
+    profileMenu?.classList.remove("active");
+  }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  $("menuBtn")?.addEventListener("click", openSidebar);
+  $("moreBtn")?.addEventListener("click", toggleMore);
+  $("sendBtn")?.addEventListener("click", sendMessage);
+  overlay?.addEventListener("click", closeSidebar);
+
+  input?.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
   });
 
-  input.addEventListener("input", () => {
-    input.style.height = "auto";
-    input.style.height = Math.min(input.scrollHeight, 130) + "px";
-  });
-}
-
-document.addEventListener("click", (e) => {
-  if (
-    moreMenu &&
-    !e.target.closest("#moreMenu") &&
-    !e.target.closest(".top-btn")
-  ) {
-    moreMenu.classList.remove("active");
-  }
-
-  if (
-    plusMenu &&
-    !e.target.closest("#plusMenu") &&
-    !e.target.closest(".plus-btn")
-  ) {
-    plusMenu.classList.remove("active");
-  }
+  setupUser();
 });
 
-// FIX BUTTON FINAL
 window.sendMessage = sendMessage;
 window.openSidebar = openSidebar;
 window.closeSidebar = closeSidebar;
@@ -298,50 +206,3 @@ window.exportChat = exportChat;
 window.toggleTheme = toggleTheme;
 window.quickAsk = quickAsk;
 window.handleFile = handleFile;
-
-const sendBtn = document.getElementById("sendBtn");
-const loginBtn = document.getElementById("loginBtn");
-const userPhoto = document.getElementById("userPhoto");
-const moreBtn = document.getElementById("moreBtn");
-const menuBtn = document.getElementById("menuBtn");
-
-sendBtn.onclick = function (e) {
-  e.preventDefault();
-  sendMessage();
-};
-
-moreBtn.onclick = function (e) {
-  e.preventDefault();
-  e.stopPropagation();
-  toggleMore(e);
-};
-
-menuBtn.onclick = function (e) {
-  e.preventDefault();
-  openSidebar();
-};
-
-const user = JSON.parse(localStorage.getItem("xinn_user") || "null");
-
-if (user) {
-  loginBtn.style.display = "none";
-  userPhoto.style.display = "block";
-  userPhoto.src = user.photo || "./avatar.gif";
-} else {
-  loginBtn.style.display = "block";
-  userPhoto.style.display = "none";
-  loginBtn.onclick = function () {
-    window.location.href = "./login.html";
-  };
-}
-
-  document.getElementById("loginBtn")?.addEventListener("click", () => {
-    window.location.href = "./login.html";
-  });
-
-  document.getElementById("moreBtn")?.addEventListener("click", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    toggleMore(e);
-  });
-});
