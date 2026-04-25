@@ -523,3 +523,42 @@ code {
     max-width: 82%;
   }
   }
+/* FIX SEMUA TOMBOL BIAR BISA DIKLIK */
+.overlay {
+  pointer-events: none !important;
+  opacity: 0 !important;
+}
+
+.overlay.active {
+  pointer-events: auto !important;
+  opacity: 1 !important;
+}
+
+.topbar,
+.sidebar,
+.input-wrap,
+.chat-input,
+.quick-grid,
+button,
+textarea,
+.user-area,
+.menu,
+.plus-menu {
+  pointer-events: auto !important;
+}
+
+.topbar {
+  z-index: 999 !important;
+}
+
+.input-wrap {
+  z-index: 999 !important;
+}
+
+.sidebar {
+  z-index: 1001 !important;
+}
+
+.overlay {
+  z-index: 1000 !important;
+}
