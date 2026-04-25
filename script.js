@@ -1,4 +1,4 @@
-constt $ = (id) => document.getElementById(id);
+const $ = (id) => document.getElementById(id);
 
 const input = $("messageInput");
 const chat = $("chatArea");
