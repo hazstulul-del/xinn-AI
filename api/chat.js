@@ -5,6 +5,7 @@ export default async function handler(req, res) {
 
   try {
     const { message, history = [] } = req.body;
+    const limitedHistory = history.slice(-4); // batasi 4 chat terakhir
 
     if (!process.env.GROQ_API_KEY) {
       return res.status(500).json({
