@@ -55,7 +55,7 @@ PENTING:
 - Jangan terlalu formal.
 `
       },
-      ...history.map((item) => ({
+      ...limitedHistory.map((item) => ({
         role: item.role === "ai" ? "assistant" : "user",
         content: item.text || ""
       })),
