@@ -167,3 +167,77 @@ body.light .send-btn{color:white}
   cursor: pointer;
   box-shadow: 0 0 12px rgba(96, 165, 250, 0.6);
 }
+.user-area {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.profile-menu {
+  position: absolute;
+  top: 48px;
+  right: 0;
+  width: 260px;
+  padding: 14px;
+  border-radius: 20px;
+  background: rgba(18, 24, 45, 0.96);
+  border: 1px solid rgba(120, 130, 255, 0.25);
+  box-shadow: 0 20px 50px rgba(0,0,0,.35);
+  display: none;
+  animation: profilePop .22s ease;
+  z-index: 9999;
+}
+
+.profile-menu.active {
+  display: block;
+}
+
+.profile-head {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.profile-head img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-head h4 {
+  margin: 0;
+  color: #fff;
+  font-size: 14px;
+}
+
+.profile-head p {
+  margin: 3px 0 0;
+  color: #94a3b8;
+  font-size: 12px;
+  word-break: break-all;
+}
+
+#logoutBtn {
+  width: 100%;
+  padding: 11px;
+  border: 0;
+  border-radius: 14px;
+  background: rgba(239, 68, 68, .14);
+  color: #fecaca;
+  font-weight: 700;
+}
+
+body.logout-anim {
+  animation: logoutFade .45s ease forwards;
+}
+
+@keyframes profilePop {
+  from { opacity: 0; transform: translateY(-8px) scale(.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes logoutFade {
+  to { opacity: 0; transform: scale(.98); }
+}
