@@ -1,4 +1,3 @@
-import { checkLimit, addUsage } from "./limit.js";
 constt $ = (id) => document.getElementById(id);
 
 const input = $("messageInput");
