@@ -107,46 +107,5 @@
   <script type="module" src="./script.js?v=fixfinal"></script>
   <script type="module" src="firebase.js"></script>
   <script type="module" src="auth.js"></script>
-  <script type="module">
-import { loginGoogle, logout } from "./auth.js";
-
-const user = JSON.parse(localStorage.getItem("xinn_user"));
-const loginBtn = document.getElementById("loginBtn");
-const userPhoto = document.getElementById("userPhoto");
-const profileMenu = document.getElementById("profileMenu");
-const profilePhoto = document.getElementById("profilePhoto");
-const profileName = document.getElementById("profileName");
-const profileEmail = document.getElementById("profileEmail");
-const logoutBtn = document.getElementById("logoutBtn");
-
-if (user) {
-  loginBtn.style.display = "none";
-  userPhoto.style.display = "block";
-  userPhoto.src = user.photo || "./avatar.gif";
-
-  profilePhoto.src = user.photo || "./avatar.gif";
-  profileName.textContent = user.name || "User";
-  profileEmail.textContent = user.email || "";
-
-  userPhoto.onclick = (e) => {
-    e.stopPropagation();
-    profileMenu.classList.toggle("active");
-  };
-
-  logoutBtn.onclick = async () => {
-    document.body.classList.add("logout-anim");
-    setTimeout(() => logout(), 350);
-  };
-} else {
-  loginBtn.style.display = "block";
-  userPhoto.style.display = "none";
-  loginBtn.onclick = () => loginGoogle();
-}
-
-document.addEventListener("click", (e) => {
-  if (!e.target.closest("#userArea")) {
-    profileMenu?.classList.remove("active");
-  }
-});
-</script>
+  
     </html>
