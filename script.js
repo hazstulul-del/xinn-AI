@@ -2,19 +2,14 @@ const $ = (id) => document.getElementById(id);
 
 const input = $("messageInput");
 const chat = $("chatArea");
-const welcome = $("welcome");
+const sendBtn = $("sendBtn");
+const menuBtn = $("menuBtn");
+const moreBtn = $("moreBtn");
 const sidebar = $("sidebar");
 const overlay = $("overlay");
 const moreMenu = $("moreMenu");
-const plusMenu = $("plusMenu");
 
-let chats = JSON.parse(localStorage.getItem("xinn_chats") || "[]");
 let loading = false;
-
-/* ================= SAVE ================= */
-function save() {
-  localStorage.setItem("xinn_chats", JSON.stringify(chats));
-}
 
 /* ================= SCROLL ================= */
 function smoothScroll() {
@@ -24,14 +19,39 @@ function smoothScroll() {
   });
 }
 
-/* ================= MARKDOWN RENDER ================= */
-function renderMarkdown(text) {
-  if (window.marked) return marked.parse(text);
+/* ================= ADD MESSAGE ================= */
+function addMessage(role, html) {
+  const wrap = document.createElement("div");
+  wrap.className = `msg ${role}`;
+
+  if (role === "ai") {
+    wrap.innerHTML = `
+      <img src="./avatar.gif" class="avatar">
+      <div class="bubble"></div>
+    `;
+  } else {
+    wrap.innerHTML = `<div class="bubble"></div>`;
+  }
+
+  const bubble = wrap.querySelector(".bubble");
+  bubble.innerHTML = html;
+
+  chat.appendChild(wrap);
+  smoothScroll();
+
+  return bubble;
+}
+
+/* ================= MARKDOWN ================= */
+function render(text) {
+  if (window.marked) {
+    return marked.parse(text);
+  }
   return text.replace(/\n/g, "<br>");
 }
 
-/* ================= CODE COPY ================= */
-function addCopyButtons() {
+/* ================= COPY BUTTON ================= */
+function addCopy() {
   document.querySelectorAll("pre").forEach((pre) => {
     if (pre.querySelector(".copy-btn")) return;
 
@@ -39,64 +59,41 @@ function addCopyButtons() {
     btn.className = "copy-btn";
     btn.innerText = "Copy";
 
-    btn.onclick = async () => {
-      const code = pre.innerText;
-      await navigator.clipboard.writeText(code);
-      btn.innerText = "Copied!";
-      setTimeout(() => (btn.innerText = "Copy"), 1200);
+    btn.onclick = () => {
+      navigator.clipboard.writeText(pre.innerText);
+      btn.innerText = "Copied";
+      setTimeout(() => (btn.innerText = "Copy"), 1000);
     };
 
     pre.appendChild(btn);
   });
 }
 
-/* ================= ADD MESSAGE ================= */
-function addMessage(role, text) {
-  if (welcome) welcome.style.display = "none";
-
-  const wrap = document.createElement("div");
-  wrap.className = `msg ${role}`;
-
-  if (role === "ai") {
-    wrap.innerHTML = `
-      <div class="avatar">
-        <img src="./avatar.gif">
-      </div>
-      <div class="bubble"></div>
-    `;
-  } else {
-    wrap.innerHTML = `
-      <div class="bubble"></div>
-    `;
-  }
-
-  chat.appendChild(wrap);
-  smoothScroll();
-
-  return wrap.querySelector(".bubble");
-}
-
-/* ================= TYPING EFFECT ================= */
+/* ================= TYPING ================= */
 function typeText(el, text) {
-  el.innerHTML = "";
-  let i = 0;
+  el.innerHTML = "...";
 
-  function typing() {
-    if (i < text.length) {
-      el.innerHTML += text.charAt(i);
-      i++;
-      smoothScroll();
-      setTimeout(typing, 12); // kecepatan GPT feel
-    } else {
-      el.innerHTML = renderMarkdown(text);
-      addCopyButtons();
+  setTimeout(() => {
+    el.innerHTML = "";
+    let i = 0;
+
+    function typing() {
+      if (i < text.length) {
+        el.innerHTML += text.charAt(i);
+        i++;
+        smoothScroll();
+        setTimeout(typing, 10);
+      } else {
+        el.innerHTML = render(text);
+        addCopy();
+      }
     }
-  }
 
-  typing();
+    typing();
+  }, 300);
 }
 
-/* ================= SEND MESSAGE ================= */
+/* ================= SEND ================= */
 async function sendMessage() {
   if (loading) return;
 
@@ -107,7 +104,7 @@ async function sendMessage() {
   input.value = "";
 
   addMessage("user", text);
-  const aiBubble = addMessage("ai", "•••");
+  const aiBubble = addMessage("ai", "...");
 
   try {
     const res = await fetch("/api/chat", {
@@ -115,71 +112,25 @@ async function sendMessage() {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        message: text,
-        history: chats.slice(-4)
-      })
+      body: JSON.stringify({ message: text })
     });
 
     const data = await res.json();
     const answer =
-      data.text ||
-      data.reply ||
-      data.answer ||
-      "Maaf, terjadi kesalahan.";
+      data.text || data.reply || data.answer || "Tidak ada respon.";
 
     typeText(aiBubble, answer);
 
-    chats.push({ role: "user", text });
-    chats.push({ role: "ai", text: answer });
-    save();
   } catch (err) {
-    aiBubble.innerHTML = "⚠️ Error koneksi API.";
+    aiBubble.innerHTML = "❌ Error API";
   }
 
   loading = false;
 }
 
-/* ================= UI ================= */
-function openSidebar() {
-  sidebar?.classList.add("active");
-  overlay?.classList.add("active");
-}
-
-function closeSidebar() {
-  sidebar?.classList.remove("active");
-  overlay?.classList.remove("active");
-}
-
-function toggleMore(e) {
-  e?.stopPropagation();
-  moreMenu?.classList.toggle("active");
-  plusMenu?.classList.remove("active");
-}
-
-function togglePlus(e) {
-  e?.stopPropagation();
-  plusMenu?.classList.toggle("active");
-  moreMenu?.classList.remove("active");
-}
-
-/* ================= CLICK CLOSE ================= */
-document.addEventListener("click", (e) => {
-  if (!e.target.closest("#moreMenu") && !e.target.closest("#moreBtn")) {
-    moreMenu?.classList.remove("active");
-  }
-
-  if (!e.target.closest("#plusMenu") && !e.target.closest(".plus-btn")) {
-    plusMenu?.classList.remove("active");
-  }
-});
-
-/* ================= INIT ================= */
+/* ================= EVENT ================= */
 document.addEventListener("DOMContentLoaded", () => {
-  $("menuBtn")?.addEventListener("click", openSidebar);
-  $("moreBtn")?.addEventListener("click", toggleMore);
-  $("sendBtn")?.addEventListener("click", sendMessage);
-  overlay?.addEventListener("click", closeSidebar);
+  sendBtn?.addEventListener("click", sendMessage);
 
   input?.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -187,11 +138,26 @@ document.addEventListener("DOMContentLoaded", () => {
       sendMessage();
     }
   });
+
+  menuBtn?.addEventListener("click", () => {
+    sidebar?.classList.add("active");
+    overlay?.classList.add("active");
+  });
+
+  overlay?.addEventListener("click", () => {
+    sidebar?.classList.remove("active");
+    overlay?.classList.remove("active");
+  });
+
+  moreBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    moreMenu?.classList.toggle("active");
+  });
+
+  document.addEventListener("click", () => {
+    moreMenu?.classList.remove("active");
+  });
 });
 
 /* ================= GLOBAL ================= */
 window.sendMessage = sendMessage;
-window.openSidebar = openSidebar;
-window.closeSidebar = closeSidebar;
-window.toggleMore = toggleMore;
-window.togglePlus = togglePlus;
