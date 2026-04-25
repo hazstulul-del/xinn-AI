@@ -298,3 +298,30 @@ window.exportChat = exportChat;
 window.toggleTheme = toggleTheme;
 window.quickAsk = quickAsk;
 window.handleFile = handleFile;
+// FIX KLIK TOMBOL FINAL
+document.addEventListener("DOMContentLoaded", () => {
+  const send = document.getElementById("sendBtn");
+  const dots = document.querySelector("header .top-btn:last-of-type");
+  const login = document.getElementById("loginBtn");
+
+  if (send) {
+    send.onclick = (e) => {
+      e.preventDefault();
+      sendMessage();
+    };
+  }
+
+  if (dots) {
+    dots.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleMore(e);
+    };
+  }
+
+  if (login) {
+    login.onclick = () => {
+      window.location.href = "./login.html";
+    };
+  }
+});
