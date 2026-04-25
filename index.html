@@ -4,82 +4,90 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Xinn AI</title>
+
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism-tomorrow.min.css">
-  <link rel="stylesheet" href="./style.css?v=final999">
+  <link rel="stylesheet" href="./style.css?v=reset-final-1">
 </head>
+
 <body>
-  <div id="overlay" class="overlay" onclick="closeSidebar()"></div>
+  <div id="overlay" class="overlay"></div>
 
   <aside id="sidebar" class="sidebar">
     <div class="side-head">
-      <img src="./avatar.gif">
+      <img src="./avatar.gif" alt="Xinn AI">
       <div>
-        <h2>Xinn AI <span>Pro</span></h2>
+        <h2>Xinn AI <span>Free</span></h2>
         <p>AI Assistant</p>
       </div>
-      <button onclick="closeSidebar()">×</button>
+      <button type="button" onclick="closeSidebar()">×</button>
     </div>
 
-    <button class="new-chat" onclick="newChat()">＋ New Chat</button>
+    <button class="new-chat" type="button" onclick="newChat()">＋ New Chat</button>
+
     <p class="history-title">Riwayat Chat</p>
     <div id="historyList"></div>
-    <button class="settings">⚙ Pengaturan ›</button>
+
+    <button class="settings" type="button">⚙ Pengaturan ›</button>
   </aside>
 
   <header class="topbar">
+    <button id="menuBtn" class="top-btn" type="button">☰</button>
 
-  <button id="menuBtn" class="top-btn">≡</button>
+    <div class="brand">✨ Xinn AI</div>
 
-  <div class="brand">✨ Xinn AI</div>
+    <div id="userArea" class="user-area">
+      <button id="loginBtn" class="login-btn" type="button">Login</button>
 
-  <!-- 🔥 TAMBAHKAN DI SINI -->
-  <div id="userArea" class="user-area">
+      <img id="userPhoto" class="avatar" src="./avatar.gif" alt="User" style="display:none;">
 
-  <button id="loginBtn" class="login-btn">Login</button>
+      <div id="profileMenu" class="profile-menu">
+        <div class="profile-head">
+          <img id="profilePhoto" src="./avatar.gif" alt="Profile">
+          <div>
+            <h4 id="profileName">User</h4>
+            <p id="profileEmail">email@gmail.com</p>
+          </div>
+        </div>
 
-  <img id="userPhoto" class="avatar" style="display:none;">
-
-  <!-- DROPDOWN PROFILE -->
-  <div id="profileMenu" class="profile-menu">
-
-    <div class="profile-head">
-      <img id="profilePhoto" src="./avatar.gif">
-      <div>
-        <h4 id="profileName">User</h4>
-        <p id="profileEmail">email@gmail.com</p>
+        <button id="logoutBtn" type="button">🚪 Logout</button>
       </div>
     </div>
 
-    <button id="logoutBtn">🚪 Logout</button>
+    <button id="moreBtn" class="top-btn" type="button">⋮</button>
 
-  </div>
-</div>
-
-  <button id="moreBtn" class="top-btn">⋮</button>
-
-  <div id="moreMenu" class="menu">
-  <div class="menu-inner">
-      <button onclick="clearChat()">🗑 Hapus Chat</button>
-      <button onclick="exportChat()">⬇ Export Chat</button>
-      <button onclick="toggleTheme()">🌙 Tema</button>
-      <button onclick="alert('Xinn AI Pro')">ⓘ Tentang Xinn AI</button>
+    <div id="moreMenu" class="menu">
+      <button type="button" onclick="clearChat()">🗑 Hapus Chat</button>
+      <button type="button" onclick="exportChat()">⬇ Export Chat</button>
+      <button type="button" onclick="toggleTheme()">🌙 Tema</button>
+      <button type="button">ⓘ Tentang Xinn AI</button>
     </div>
   </header>
 
   <main id="chatArea" class="chat-area">
     <section id="welcome" class="welcome">
       <div class="hero-avatar">
-        <img src="./avatar.gif">
+        <img src="./avatar.gif" alt="Xinn AI">
       </div>
 
       <h1>Apa yang bisa<br>saya bantu?</h1>
-      <p>Xinn AI siap bantu coding, desain, debug, dan ide kamu.</p>
+      <p>Xinn AI siap bantu coding, desain, debug, ide, dan tanya jawab umum.</p>
 
       <div class="quick-grid">
-        <button onclick="quickAsk('Buatkan kode HTML dan CSS')">⌨️<b>Buatkan kode</b><small>HTML & CSS</small></button>
-        <button onclick="quickAsk('Jelaskan konsep ini')">📖<b>Bantu jelaskan</b><small>suatu konsep</small></button>
-        <button onclick="quickAsk('Buat ide konten sosial media')">✨<b>Buat ide konten</b><small>sosial media</small></button>
-        <button onclick="quickAsk('Bantu debug kode saya')">🐞<b>Bantu debug</b><small>kode saya</small></button>
+        <button type="button" onclick="quickAsk('Buatkan kode HTML dan CSS')">
+          ⌨️ <b>Buatkan kode</b><small>HTML & CSS</small>
+        </button>
+
+        <button type="button" onclick="quickAsk('Jelaskan konsep ini dengan sederhana')">
+          📖 <b>Bantu jelaskan</b><small>suatu konsep</small>
+        </button>
+
+        <button type="button" onclick="quickAsk('Buat ide konten sosial media')">
+          ✨ <b>Buat ide konten</b><small>sosial media</small>
+        </button>
+
+        <button type="button" onclick="quickAsk('Bantu debug kode saya')">
+          🐞 <b>Bantu debug</b><small>kode saya</small>
+        </button>
       </div>
     </section>
   </main>
@@ -92,10 +100,11 @@
     </div>
 
     <div class="chat-input">
-      <button class="plus-btn" onclick="togglePlus(event)">＋</button>
+      <button class="plus-btn" type="button" onclick="togglePlus(event)">＋</button>
       <textarea id="messageInput" placeholder="Ketik pesan..." rows="1"></textarea>
       <button id="sendBtn" class="send-btn" type="button">➤</button>
     </div>
+
     <p class="warning">Xinn AI dapat membuat kesalahan. Periksa informasi penting.</p>
   </footer>
 
@@ -104,6 +113,7 @@
   <script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-markup.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-css.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-javascript.min.js"></script>
-  <script src="./script.js?v=fix-all-1"></script>
+
+  <script src="./script.js?v=reset-final-1"></script>
 </body>
-</html>
+          </html>
