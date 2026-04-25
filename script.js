@@ -286,7 +286,7 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// FIX BUTTON ANTI MATI
+// FIX BUTTON FINAL
 window.sendMessage = sendMessage;
 window.openSidebar = openSidebar;
 window.closeSidebar = closeSidebar;
@@ -298,28 +298,42 @@ window.exportChat = exportChat;
 window.toggleTheme = toggleTheme;
 window.quickAsk = quickAsk;
 window.handleFile = handleFile;
-// FIX KLIK TOMBOL FINAL
-window.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("menuBtn")?.addEventListener("click", (e) => {
-    e.preventDefault();
-    openSidebar();
-  });
 
-  // FIX FINAL TOMBOL KIRIM (VERSI STABIL)
-window.addEventListener("DOMContentLoaded", () => {
-  const btn = document.getElementById("sendBtn");
+const sendBtn = document.getElementById("sendBtn");
+const loginBtn = document.getElementById("loginBtn");
+const userPhoto = document.getElementById("userPhoto");
+const moreBtn = document.getElementById("moreBtn");
+const menuBtn = document.getElementById("menuBtn");
 
-  if (btn) {
-    btn.onclick = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+sendBtn.onclick = function (e) {
+  e.preventDefault();
+  sendMessage();
+};
 
-      console.log("KIRIM DIKLIK");
+moreBtn.onclick = function (e) {
+  e.preventDefault();
+  e.stopPropagation();
+  toggleMore(e);
+};
 
-      sendMessage();
-    };
-  }
-});
+menuBtn.onclick = function (e) {
+  e.preventDefault();
+  openSidebar();
+};
+
+const user = JSON.parse(localStorage.getItem("xinn_user") || "null");
+
+if (user) {
+  loginBtn.style.display = "none";
+  userPhoto.style.display = "block";
+  userPhoto.src = user.photo || "./avatar.gif";
+} else {
+  loginBtn.style.display = "block";
+  userPhoto.style.display = "none";
+  loginBtn.onclick = function () {
+    window.location.href = "./login.html";
+  };
+}
 
   document.getElementById("loginBtn")?.addEventListener("click", () => {
     window.location.href = "./login.html";
